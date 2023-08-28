@@ -112,6 +112,7 @@ func insertExchangeRate(ctx context.Context, db *sql.DB, usdBrl *Usdbrl) error {
 	if err != nil {
 		return err
 	}
+	log.Println("insert new exchange rate")
 	return nil
 }
 
@@ -135,6 +136,6 @@ CREATE TABLE IF NOT EXISTS usdbrl(id INTEGER PRIMARY KEY,
 	if err != nil {
 		log.Fatal(err)
 	}
-	fmt.Println("table cars created")
+	log.Println("create table usdbrl if not exists")
 	return nil
 }

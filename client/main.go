@@ -5,6 +5,7 @@ import (
 	"encoding/json"
 	"fmt"
 	"io"
+	"log"
 	"net/http"
 	"os"
 	"time"
@@ -24,7 +25,7 @@ func main() {
 	if err != nil {
 		panic(err)
 	}
-	println("Client...", exchangeRate.Bid)
+	log.Println("Dollar exchange rate", exchangeRate.Bid)
 	f, err := os.Create("cotacao.txt")
 	if err != nil {
 		panic(err)
@@ -37,10 +38,8 @@ func main() {
 }
 
 func requestExchangeRate() (*ExchangeRate, error) {
-
 	ctx, cancel := context.WithTimeout(context.Background(), timeout)
 	defer cancel()
-
 	req, err := http.NewRequestWithContext(ctx, "GET", ServerUrl, nil)
 	if err != nil {
 		return nil, err
