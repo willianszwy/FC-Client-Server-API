@@ -62,7 +62,10 @@ func handleDollarExchange(w http.ResponseWriter, r *http.Request) {
 		panic(err)
 	}
 	fmt.Printf("Dolar:%s", exchangeRate.Usdbrl.Bid)
-	insertExchangeRate(ctx, db, &exchangeRate.Usdbrl)
+	err = insertExchangeRate(db, &exchangeRate.Usdbrl)
+	if err != nil {
+		log.Fatal(err)
+	}
 	json.NewEncoder(w).Encode(dollarResponse{
 		Bid: exchangeRate.Usdbrl.Bid,
 	})
@@ -87,8 +90,8 @@ func requestExchangeRate(ctx context.Context) (*ExchangeRate, error) {
 	return &exchangeRate, nil
 }
 
-func insertExchangeRate(ctx context.Context, db *sql.DB, usdBrl *Usdbrl) error {
-	ctx, cancel := context.WithTimeout(ctx, DbTimeout)
+func insertExchangeRate(db *sql.DB, usdBrl *Usdbrl) error {
+	ctx, cancel := context.WithTimeout(context.Background(), DbTimeout)
 	defer cancel()
 	stmt, err := db.Prepare("insert into usdbrl(code,codein,name,high,low,var_bid,pct_change,bid,ask,timestamp,create_date) " +
 		"values (?,?,?,?,?,?,?,?,?,?,?)")
@@ -96,6 +99,7 @@ func insertExchangeRate(ctx context.Context, db *sql.DB, usdBrl *Usdbrl) error {
 		return err
 	}
 	defer stmt.Close()
+	log.Println("insert new exchange rate")
 	_, err = stmt.ExecContext(
 		ctx,
 		usdBrl.Code,
@@ -112,7 +116,6 @@ func insertExchangeRate(ctx context.Context, db *sql.DB, usdBrl *Usdbrl) error {
 	if err != nil {
 		return err
 	}
-	log.Println("insert new exchange rate")
 	return nil
 }
 
